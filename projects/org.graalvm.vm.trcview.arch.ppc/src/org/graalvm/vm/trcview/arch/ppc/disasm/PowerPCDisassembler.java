@@ -2,7 +2,6 @@ package org.graalvm.vm.trcview.arch.ppc.disasm;
 
 import org.graalvm.vm.trcview.arch.io.InstructionType;
 import org.graalvm.vm.trcview.arch.ppc.io.PowerPCCpuState;
-import org.graalvm.vm.util.BitTest;
 import org.graalvm.vm.util.HexFormatter;
 
 public class PowerPCDisassembler {
@@ -581,12 +580,42 @@ public class PowerPCDisassembler {
 		String add = l + a;
 		String bta = Integer.toHexString(aa ? bd : pc + bd);
 		String prefix = "b";
-		if((bo & 0b11110) == 0 || BitTest.test(bo, 0b00010) || BitTest.test(bo, 0b00100)) {
+		if((bo & 0b11110) == 0 || (bo & 0b1110) == 0b00010 || (bo & 0b11100) == 0b00100) {
+			if((bo & 0b1110) == 0) {
+				// Decrement the CTR, then branch if the decremented CTR != 0 and CR_BI = 0
+				prefix = "bdnz";
+			} else if((bo & 0b11110) == 0b00010) {
+				// Decrement the CTR, then branch if the decremented CTR = 0 and CR_BI = 0
+				prefix = "bdz";
+			}
 			String suffix = BC_FALSE[bi & 0x3];
-			return new String[] { prefix + suffix + add, bta };
-		} else if(BitTest.test(bo, 0b01000) || BitTest.test(bo, 0b01010) || BitTest.test(bo, 0b01100)) {
+			int cr = bi >> 2;
+			if(cr != 0) {
+				return new String[] { prefix + suffix + add, "cr" + cr, bta };
+			} else {
+				return new String[] { prefix + suffix + add, bta };
+			}
+		} else if((bo & 0b11110) == 0b01000 || (bo & 0b11110) == 0b01010 || (bo & 0b11100) == 0b01100) {
+			if((bo & 0b11110) == 0b01000) {
+				// Decrement the CTR, then branch if the decremented CTR != 0 and CR_BI = 1
+				prefix = "bdnz";
+			} else if((bo & 0b11110) == 0b01010) {
+				// Decrement the CTR, then branch if the decremented CTR = 0 and CR_BI = 1
+				prefix = "bdz";
+			}
 			String suffix = BC_TRUE[bi & 0x3];
-			return new String[] { prefix + suffix + add, bta };
+			int cr = bi >> 2;
+			if(cr != 0) {
+				return new String[] { prefix + suffix + add, "cr" + cr, bta };
+			} else {
+				return new String[] { prefix + suffix + add, bta };
+			}
+		} else if((bo & 0b10100) == 0b10100) {
+			return new String[] { "b" + add, bta };
+		} else if((bo & 0b10110) == 0b10000) {
+			return new String[] { "bdnz", bta };
+		} else if((bo & 0b10110) == 0b10010) {
+			return new String[] { "bdz", bta };
 		}
 		return new String[] { "bc" + add, Integer.toString(bo), Integer.toString(bi), bta };
 	}
