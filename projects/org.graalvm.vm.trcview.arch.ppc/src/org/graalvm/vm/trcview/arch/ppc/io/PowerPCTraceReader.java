@@ -12,6 +12,7 @@ import org.graalvm.vm.util.io.WordInputStream;
 
 public class PowerPCTraceReader extends ArchTraceReader {
 	public static final int MAGIC_STEP = 0x53544550;
+	public static final int MAGIC_TRAP = 0x54524150;
 
 	private final WordInputStream in;
 	private PowerPCStepEvent lastStep;
@@ -37,6 +38,8 @@ public class PowerPCTraceReader extends ArchTraceReader {
 		case MAGIC_STEP:
 			lastStep = new PowerPCStepEvent(in, 0);
 			return lastStep;
+		case MAGIC_TRAP:
+			return new PowerPCExceptionEvent(in, 0, lastStep);
 		default:
 			throw new IOException("unknown record: " + HexFormatter.tohex(magic, 8) +
 					" [position " + tell() + "]");

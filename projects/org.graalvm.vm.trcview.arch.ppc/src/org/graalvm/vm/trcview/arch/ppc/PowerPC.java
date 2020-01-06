@@ -29,7 +29,12 @@ public class PowerPC extends Architecture {
 
 	@Override
 	public String getName() {
-		return "PowerPC 32bit (Espresso)";
+		return "ppc32";
+	}
+
+	@Override
+	public String getDescription() {
+		return "Nintendo Wii U (Espresso microprocessor)";
 	}
 
 	@Override
