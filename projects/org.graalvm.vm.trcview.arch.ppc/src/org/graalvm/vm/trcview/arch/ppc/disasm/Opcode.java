@@ -93,6 +93,7 @@ public class Opcode {
 	public static final int XO_FMR = 72;
 	public static final int XO_MULHW = 75;
 	public static final int XO_MFMSR = 83;
+	public static final int XO_DCBF = 86;
 	public static final int XO_LBZX = 87;
 	public static final int XO_LVX = 103;
 	public static final int XO_NEG = 104;
@@ -135,6 +136,7 @@ public class Opcode {
 	public static final int XO_CROR = 449;
 	public static final int XO_DIVWU = 459;
 	public static final int XO_MTSPR = 467;
+	public static final int XO_DCBI = 470;
 	public static final int XO_NAND = 476;
 	public static final int XO_DIVW = 491;
 	public static final int XO_BCCTR = 528;

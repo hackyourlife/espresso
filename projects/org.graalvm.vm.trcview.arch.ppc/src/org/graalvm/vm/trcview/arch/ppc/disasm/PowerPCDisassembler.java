@@ -189,6 +189,8 @@ public class PowerPCDisassembler {
 				return andc(insn);
 			case Opcode.XO_MFMSR:
 				return mfmsr(insn);
+			case Opcode.XO_DCBF:
+				return dcbf(insn);
 			case Opcode.XO_LBZX:
 				return lbzx(insn);
 			case Opcode.XO_LVX:
@@ -237,6 +239,8 @@ public class PowerPCDisassembler {
 				return or(insn);
 			case Opcode.XO_MTSPR:
 				return mtspr(insn);
+			case Opcode.XO_DCBI:
+				return dcbi(insn);
 			case Opcode.XO_LWBRX:
 				return lwbrx(insn);
 			case Opcode.XO_LFSX:
@@ -1043,6 +1047,12 @@ public class PowerPCDisassembler {
 		return new String[] { "mfmsr", "r" + rt };
 	}
 
+	protected static String[] dcbf(InstructionFormat insn) {
+		int ra = insn.RA.get();
+		int rb = insn.RB.get();
+		return new String[] { "dcbf", r0(ra), "r" + rb };
+	}
+
 	protected static String[] lbzx(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
@@ -1195,8 +1205,64 @@ public class PowerPCDisassembler {
 			return new String[] { "mflr", "r" + rt };
 		case 9:
 			return new String[] { "mfctr", "r" + rt };
+		case 18:
+			return new String[] { "mfdsisr", "r" + rt };
+		case 19:
+			return new String[] { "mfdar", "r" + rt };
+		case 22:
+			return new String[] { "mfdec", "r" + rt };
+		case 25:
+			return new String[] { "mfsdr1", "r" + rt };
+		case 26:
+			return new String[] { "mfsrr0", "r" + rt };
+		case 27:
+			return new String[] { "mfsrr1", "r" + rt };
+		case 272:
+			return new String[] { "mfsprg", "r" + rt, "0" };
+		case 273:
+			return new String[] { "mfsprg", "r" + rt, "1" };
+		case 274:
+			return new String[] { "mfsprg", "r" + rt, "2" };
+		case 275:
+			return new String[] { "mfsprg", "r" + rt, "3" };
+		case 282:
+			return new String[] { "mfear", "r" + rt };
+		case 287:
+			return new String[] { "mfpvr", "r" + rt };
+		case 528:
+			return new String[] { "mfibatu", "r" + rt, "0" };
+		case 529:
+			return new String[] { "mfibatl", "r" + rt, "0" };
+		case 530:
+			return new String[] { "mfibatu", "r" + rt, "1" };
+		case 531:
+			return new String[] { "mfibatl", "r" + rt, "1" };
+		case 532:
+			return new String[] { "mfibatu", "r" + rt, "2" };
+		case 533:
+			return new String[] { "mfibatl", "r" + rt, "2" };
+		case 534:
+			return new String[] { "mfibatu", "r" + rt, "3" };
+		case 535:
+			return new String[] { "mfibatl", "r" + rt, "3" };
+		case 536:
+			return new String[] { "mfdbatu", "r" + rt, "0" };
+		case 537:
+			return new String[] { "mfdbatl", "r" + rt, "0" };
+		case 538:
+			return new String[] { "mfdbatu", "r" + rt, "1" };
+		case 539:
+			return new String[] { "mfdbatl", "r" + rt, "1" };
+		case 540:
+			return new String[] { "mfdbatu", "r" + rt, "2" };
+		case 541:
+			return new String[] { "mfdbatl", "r" + rt, "2" };
+		case 542:
+			return new String[] { "mfdbatu", "r" + rt, "3" };
+		case 543:
+			return new String[] { "mfdbatl", "r" + rt, "3" };
 		default:
-			return new String[] { "mfspr", "r" + rt, Integer.toString(spr) };
+			return new String[] { "mfspr", "r" + rt, Spr.toString(spr) };
 		}
 	}
 
@@ -1246,9 +1312,73 @@ public class PowerPCDisassembler {
 			return new String[] { "mtlr", "r" + rs };
 		case 9:
 			return new String[] { "mtctr", "r" + rs };
+		case 18:
+			return new String[] { "mtdsisr", "r" + rs };
+		case 19:
+			return new String[] { "mtdar", "r" + rs };
+		case 22:
+			return new String[] { "mtdec", "r" + rs };
+		case 25:
+			return new String[] { "mtsdr1", "r" + rs };
+		case 26:
+			return new String[] { "mtsrr0", "r" + rs };
+		case 27:
+			return new String[] { "mtsrr1", "r" + rs };
+		case 272:
+			return new String[] { "mtsprg", "0", "r" + rs };
+		case 273:
+			return new String[] { "mtsprg", "1", "r" + rs };
+		case 274:
+			return new String[] { "mtsprg", "2", "r" + rs };
+		case 275:
+			return new String[] { "mtsprg", "3", "r" + rs };
+		case 282:
+			return new String[] { "mtear", "r" + rs };
+		case 284:
+			return new String[] { "mttbl", "r" + rs };
+		case 285:
+			return new String[] { "mttbu", "r" + rs };
+		case 528:
+			return new String[] { "mtibatu", "0", "r" + rs };
+		case 529:
+			return new String[] { "mtibatl", "0", "r" + rs };
+		case 530:
+			return new String[] { "mtibatu", "1", "r" + rs };
+		case 531:
+			return new String[] { "mtibatl", "1", "r" + rs };
+		case 532:
+			return new String[] { "mtibatu", "2", "r" + rs };
+		case 533:
+			return new String[] { "mtibatl", "2", "r" + rs };
+		case 534:
+			return new String[] { "mtibatu", "3", "r" + rs };
+		case 535:
+			return new String[] { "mtibatl", "3", "r" + rs };
+		case 536:
+			return new String[] { "mtdbatu", "0", "r" + rs };
+		case 537:
+			return new String[] { "mtdbatl", "0", "r" + rs };
+		case 538:
+			return new String[] { "mtdbatu", "1", "r" + rs };
+		case 539:
+			return new String[] { "mtdbatl", "1", "r" + rs };
+		case 540:
+			return new String[] { "mtdbatu", "2", "r" + rs };
+		case 541:
+			return new String[] { "mtdbatl", "2", "r" + rs };
+		case 542:
+			return new String[] { "mtdbatu", "3", "r" + rs };
+		case 543:
+			return new String[] { "mtdbatl", "3", "r" + rs };
 		default:
-			return new String[] { "mtspr", "r" + rs, Integer.toString(spr) };
+			return new String[] { "mtspr", "r" + rs, Spr.toString(spr) };
 		}
+	}
+
+	protected static String[] dcbi(InstructionFormat insn) {
+		int ra = insn.RA.get();
+		int rb = insn.RB.get();
+		return new String[] { "dcbi", r0(ra), "r" + rb };
 	}
 
 	protected static String[] lwbrx(InstructionFormat insn) {
