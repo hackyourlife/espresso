@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.graalvm.vm.trcview.arch.io.CpuState;
 import org.graalvm.vm.trcview.arch.io.InstructionType;
 import org.graalvm.vm.trcview.arch.io.StepEvent;
 import org.graalvm.vm.trcview.arch.io.StepFormat;
@@ -16,6 +15,7 @@ import org.graalvm.vm.util.io.WordOutputStream;
 
 public class PowerPCStepEvent extends StepEvent {
 	private final PowerPCCpuState state;
+	InstructionType type = null;
 
 	protected PowerPCStepEvent(WordInputStream in, int tid) throws IOException {
 		super(PowerPC.ID, tid);
@@ -56,7 +56,11 @@ public class PowerPCStepEvent extends StepEvent {
 
 	@Override
 	public InstructionType getType() {
-		return PowerPCDisassembler.getType(state, state.getInstruction());
+		if(type != null) {
+			return type;
+		} else {
+			return PowerPCDisassembler.getType(state, state.getInstruction());
+		}
 	}
 
 	@Override
@@ -65,7 +69,7 @@ public class PowerPCStepEvent extends StepEvent {
 	}
 
 	@Override
-	public CpuState getState() {
+	public PowerPCCpuState getState() {
 		return state;
 	}
 

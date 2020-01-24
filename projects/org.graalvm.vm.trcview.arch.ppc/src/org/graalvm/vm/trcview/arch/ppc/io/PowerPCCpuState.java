@@ -18,6 +18,8 @@ public class PowerPCCpuState extends CpuState {
 	private final int cr;
 	private final int xer;
 	private final int fpscr;
+	private final int srr0;
+	private final int srr1;
 	private final long step;
 
 	public PowerPCCpuState(WordInputStream in, int tid) throws IOException {
@@ -36,6 +38,8 @@ public class PowerPCCpuState extends CpuState {
 		cr = in.read32bit();
 		xer = in.read32bit();
 		fpscr = in.read32bit();
+		srr0 = in.read32bit();
+		srr1 = in.read32bit();
 		step = in.read64bit();
 	}
 
@@ -53,69 +57,69 @@ public class PowerPCCpuState extends CpuState {
 	public long get(String name) {
 		switch(name) {
 		case "r0":
-			return gpr[0];
+			return Integer.toUnsignedLong(gpr[0]);
 		case "r1":
-			return gpr[1];
+			return Integer.toUnsignedLong(gpr[1]);
 		case "r2":
-			return gpr[2];
+			return Integer.toUnsignedLong(gpr[2]);
 		case "r3":
-			return gpr[3];
+			return Integer.toUnsignedLong(gpr[3]);
 		case "r4":
-			return gpr[4];
+			return Integer.toUnsignedLong(gpr[4]);
 		case "r5":
-			return gpr[5];
+			return Integer.toUnsignedLong(gpr[5]);
 		case "r6":
-			return gpr[6];
+			return Integer.toUnsignedLong(gpr[6]);
 		case "r7":
-			return gpr[7];
+			return Integer.toUnsignedLong(gpr[7]);
 		case "r8":
-			return gpr[8];
+			return Integer.toUnsignedLong(gpr[8]);
 		case "r9":
-			return gpr[9];
+			return Integer.toUnsignedLong(gpr[9]);
 		case "r10":
-			return gpr[10];
+			return Integer.toUnsignedLong(gpr[10]);
 		case "r11":
-			return gpr[11];
+			return Integer.toUnsignedLong(gpr[11]);
 		case "r12":
-			return gpr[12];
+			return Integer.toUnsignedLong(gpr[12]);
 		case "r13":
-			return gpr[13];
+			return Integer.toUnsignedLong(gpr[13]);
 		case "r14":
-			return gpr[14];
+			return Integer.toUnsignedLong(gpr[14]);
 		case "r15":
-			return gpr[15];
+			return Integer.toUnsignedLong(gpr[15]);
 		case "r16":
-			return gpr[16];
+			return Integer.toUnsignedLong(gpr[16]);
 		case "r17":
-			return gpr[17];
+			return Integer.toUnsignedLong(gpr[17]);
 		case "r18":
-			return gpr[18];
+			return Integer.toUnsignedLong(gpr[18]);
 		case "r19":
-			return gpr[19];
+			return Integer.toUnsignedLong(gpr[19]);
 		case "r20":
-			return gpr[20];
+			return Integer.toUnsignedLong(gpr[20]);
 		case "r21":
-			return gpr[21];
+			return Integer.toUnsignedLong(gpr[21]);
 		case "r22":
-			return gpr[22];
+			return Integer.toUnsignedLong(gpr[22]);
 		case "r23":
-			return gpr[23];
+			return Integer.toUnsignedLong(gpr[23]);
 		case "r24":
-			return gpr[24];
+			return Integer.toUnsignedLong(gpr[24]);
 		case "r25":
-			return gpr[25];
+			return Integer.toUnsignedLong(gpr[25]);
 		case "r26":
-			return gpr[26];
+			return Integer.toUnsignedLong(gpr[26]);
 		case "r27":
-			return gpr[27];
+			return Integer.toUnsignedLong(gpr[27]);
 		case "r28":
-			return gpr[28];
+			return Integer.toUnsignedLong(gpr[28]);
 		case "r29":
-			return gpr[29];
+			return Integer.toUnsignedLong(gpr[29]);
 		case "r30":
-			return gpr[30];
+			return Integer.toUnsignedLong(gpr[30]);
 		case "r31":
-			return gpr[31];
+			return Integer.toUnsignedLong(gpr[31]);
 		case "insn":
 			return Integer.toUnsignedLong(insn);
 		case "cr":
@@ -128,6 +132,10 @@ public class PowerPCCpuState extends CpuState {
 			return Integer.toUnsignedLong(ctr);
 		case "lr":
 			return Integer.toUnsignedLong(lr);
+		case "srr0":
+			return Integer.toUnsignedLong(srr0);
+		case "srr1":
+			return Integer.toUnsignedLong(srr1);
 		case "pc":
 			return Integer.toUnsignedLong(pc);
 		case "sp":
@@ -141,6 +149,10 @@ public class PowerPCCpuState extends CpuState {
 		return insn;
 	}
 
+	public int getLR() {
+		return lr;
+	}
+
 	public int getCR() {
 		return cr;
 	}
@@ -151,6 +163,14 @@ public class PowerPCCpuState extends CpuState {
 
 	public int getGPR(int reg) {
 		return gpr[reg];
+	}
+
+	public int getSRR0() {
+		return srr0;
+	}
+
+	public int getSRR1() {
+		return srr1;
 	}
 
 	@Override
@@ -225,7 +245,12 @@ public class PowerPCCpuState extends CpuState {
 		for(int i = 0; i < 8; i++) {
 			buf.append(strcr(i));
 		}
-		buf.append("]\n");
+		buf.append("]\n\n");
+		buf.append("SRR0 ");
+		buf.append(HexFormatter.tohex(Integer.toUnsignedLong(srr0), 8));
+		buf.append(" SRR1 ");
+		buf.append(HexFormatter.tohex(Integer.toUnsignedLong(srr1), 8));
+		buf.append('\n');
 		return buf.toString();
 	}
 }
