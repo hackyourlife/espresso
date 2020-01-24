@@ -35,6 +35,8 @@ public class PowerPCTraceReader extends ArchTraceReader {
 	private static final InstructionFormat insn = new InstructionFormat();
 	private Deque<Integer> trapstack = new ArrayDeque<>();
 
+	private int fullstate = 0;
+
 	public PowerPCTraceReader(InputStream in) {
 		this(new BEInputStream(in));
 	}
@@ -103,7 +105,9 @@ public class PowerPCTraceReader extends ArchTraceReader {
 		}
 		switch(magic) {
 		case MAGIC_STEP:
-			lastStep = new PowerPCStepEvent(in, 0);
+			lastStep = new PowerPCStepEvent(in, 0, lastStep, (fullstate % 500) == 0);
+			fullstate++;
+			fullstate %= 500;
 			checkTrap(lastStep);
 			return lastStep;
 		case MAGIC_TRAP:

@@ -19,7 +19,19 @@ public class PowerPCStepEvent extends StepEvent {
 
 	protected PowerPCStepEvent(WordInputStream in, int tid) throws IOException {
 		super(PowerPC.ID, tid);
-		state = new PowerPCCpuState(in, tid);
+		state = new PowerPCFullCpuState(in, tid);
+	}
+
+	protected PowerPCStepEvent(WordInputStream in, int tid, PowerPCStepEvent last, boolean fullstate)
+			throws IOException {
+		super(PowerPC.ID, tid);
+		PowerPCCpuState lastState = last == null ? new PowerPCZeroCpuState(tid) : last.getState();
+		PowerPCCpuState cpu = new PowerPCDeltaCpuState(in, tid, lastState);
+		if(fullstate) {
+			state = new PowerPCFullCpuState(cpu);
+		} else {
+			state = cpu;
+		}
 	}
 
 	@Override
