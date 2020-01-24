@@ -231,6 +231,8 @@ public class PowerPCDisassembler {
 				return mfspr(insn);
 			case Opcode.XO_LHAX:
 				return lhax(insn);
+			case Opcode.XO_MFTB:
+				return mftb(insn);
 			case Opcode.XO_STHX:
 				return sthx(insn);
 			case Opcode.XO_ORC:
@@ -452,6 +454,14 @@ public class PowerPCDisassembler {
 		if(r == 0) {
 			return "0";
 		} else {
+			return r(r);
+		}
+	}
+
+	protected static String r(int r) {
+		if(r == 1) {
+			return "sp";
+		} else {
 			return "r" + r;
 		}
 	}
@@ -462,9 +472,9 @@ public class PowerPCDisassembler {
 		int si = insn.SI.get();
 		String dec = Trap.decodeTO(to);
 		if(dec != null) {
-			return new String[] { "tw" + dec + "i", "r" + ra, Integer.toString(si) };
+			return new String[] { "tw" + dec + "i", r(ra), Integer.toString(si) };
 		} else {
-			return new String[] { "twi", Integer.toString(to), "r" + ra, Integer.toString(si) };
+			return new String[] { "twi", Integer.toString(to), r(ra), Integer.toString(si) };
 		}
 	}
 
@@ -472,14 +482,14 @@ public class PowerPCDisassembler {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int si = insn.SI.get();
-		return new String[] { "mulli", "r" + rt, "r" + ra, Integer.toString(si) };
+		return new String[] { "mulli", r(rt), r(ra), Integer.toString(si) };
 	}
 
 	protected static String[] subfic(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int si = insn.SI.get();
-		return new String[] { "subfic", "r" + rt, "r" + ra, Integer.toString(si) };
+		return new String[] { "subfic", r(rt), r(ra), Integer.toString(si) };
 	}
 
 	protected static String[] cmpli(InstructionFormat insn) {
@@ -490,15 +500,15 @@ public class PowerPCDisassembler {
 		String uis = Integer.toString(ui);
 		if(!l) {
 			if(bf == 0) {
-				return new String[] { "cmplwi", "r" + ra, uis };
+				return new String[] { "cmplwi", r(ra), uis };
 			} else {
-				return new String[] { "cmplwi", "cr" + bf, "r" + ra, uis };
+				return new String[] { "cmplwi", "cr" + bf, r(ra), uis };
 			}
 		} else {
 			if(bf == 0) {
-				return new String[] { "cmpldi", "cr" + bf, "r" + ra, uis };
+				return new String[] { "cmpldi", "cr" + bf, r(ra), uis };
 			} else {
-				return new String[] { "cmpldi", "r" + ra, uis };
+				return new String[] { "cmpldi", r(ra), uis };
 			}
 		}
 	}
@@ -510,15 +520,15 @@ public class PowerPCDisassembler {
 		int si = insn.SI.get();
 		if(!l) {
 			if(bf != 0) {
-				return new String[] { "cmpwi", "cr" + bf, "r" + ra, Integer.toString(si) };
+				return new String[] { "cmpwi", "cr" + bf, r(ra), Integer.toString(si) };
 			} else {
-				return new String[] { "cmpwi", "r" + ra, Integer.toString(si) };
+				return new String[] { "cmpwi", r(ra), Integer.toString(si) };
 			}
 		} else {
 			if(bf != 0) {
-				return new String[] { "cmpdi", "cr" + bf, "r" + ra, Integer.toString(si) };
+				return new String[] { "cmpdi", "cr" + bf, r(ra), Integer.toString(si) };
 			} else {
-				return new String[] { "cmpdi", "r" + ra, Integer.toString(si) };
+				return new String[] { "cmpdi", r(ra), Integer.toString(si) };
 			}
 		}
 	}
@@ -528,9 +538,9 @@ public class PowerPCDisassembler {
 		int ra = insn.RA.get();
 		int si = insn.SI.get();
 		if(si < 0) {
-			return new String[] { "subic", "r" + rt, "r" + ra, Integer.toString(-si) };
+			return new String[] { "subic", r(rt), r(ra), Integer.toString(-si) };
 		} else {
-			return new String[] { "addic", "r" + rt, "r" + ra, Integer.toString(si) };
+			return new String[] { "addic", r(rt), r(ra), Integer.toString(si) };
 		}
 	}
 
@@ -539,9 +549,9 @@ public class PowerPCDisassembler {
 		int ra = insn.RA.get();
 		int si = insn.SI.get();
 		if(si < 0) {
-			return new String[] { "subic.", "r" + rt, "r" + ra, Integer.toString(-si) };
+			return new String[] { "subic.", r(rt), r(ra), Integer.toString(-si) };
 		} else {
-			return new String[] { "addic.", "r" + rt, "r" + ra, Integer.toString(si) };
+			return new String[] { "addic.", r(rt), r(ra), Integer.toString(si) };
 		}
 	}
 
@@ -551,11 +561,11 @@ public class PowerPCDisassembler {
 		int si = insn.SI.get();
 		String arg = Integer.toString(si);
 		if(ra == 0) {
-			return new String[] { "li", "r" + rt, arg };
+			return new String[] { "li", r(rt), arg };
 		} else if(si < 0) {
-			return new String[] { "subi", "r" + rt, r0(ra), Integer.toString(-si) };
+			return new String[] { "subi", r(rt), r0(ra), Integer.toString(-si) };
 		} else {
-			return new String[] { "addi", "r" + rt, r0(ra), arg };
+			return new String[] { "addi", r(rt), r0(ra), arg };
 		}
 	}
 
@@ -565,11 +575,11 @@ public class PowerPCDisassembler {
 		int si = insn.SI.get() << 16;
 		String arg = Integer.toString(si >> 16);
 		if(ra == 0) {
-			return new String[] { "lis", "r" + rt, arg };
+			return new String[] { "lis", r(rt), arg };
 		} else if(si < 0) {
-			return new String[] { "subis", "r" + rt, r0(ra), Integer.toString(-(si >> 16)) };
+			return new String[] { "subis", r(rt), r0(ra), Integer.toString(-(si >> 16)) };
 		} else {
-			return new String[] { "addis", "r" + rt, r0(ra), arg };
+			return new String[] { "addis", r(rt), r0(ra), arg };
 		}
 	}
 
@@ -833,9 +843,9 @@ public class PowerPCDisassembler {
 		if(sh == (32 - mb)) {
 			int b = mb;
 			int n = me - b + 1;
-			return new String[] { "inslwi", "r" + ra, "r" + rs, Integer.toString(n), Integer.toString(b) };
+			return new String[] { "inslwi", r(ra), r(rs), Integer.toString(n), Integer.toString(b) };
 		} else {
-			return new String[] { "rlwimi" + dot, "r" + ra, "r" + rs, Integer.toString(sh),
+			return new String[] { "rlwimi" + dot, r(ra), r(rs), Integer.toString(sh),
 					Integer.toString(mb), Integer.toString(me) };
 		}
 	}
@@ -850,15 +860,15 @@ public class PowerPCDisassembler {
 		String dot = rc ? "." : "";
 		if(sh == 0 && mb == 0) {
 			int n = 31 - me;
-			return new String[] { "clrrwi" + dot, "r" + ra, "r" + rs, Integer.toString(n) };
+			return new String[] { "clrrwi" + dot, r(ra), r(rs), Integer.toString(n) };
 		} else if(sh == (32 - mb) && me == 31) {
-			return new String[] { "srwi" + dot, "r" + ra, "r" + rs, Integer.toString(mb) };
+			return new String[] { "srwi" + dot, r(ra), r(rs), Integer.toString(mb) };
 		} else if(mb == 0) {
 			int n = me + 1;
-			return new String[] { "extlwi" + dot, "r" + ra, "r" + rs, Integer.toString(n),
+			return new String[] { "extlwi" + dot, r(ra), r(rs), Integer.toString(n),
 					Integer.toString(sh) };
 		} else {
-			return new String[] { "rlwinm" + dot, "r" + ra, "r" + rs, Integer.toString(sh),
+			return new String[] { "rlwinm" + dot, r(ra), r(rs), Integer.toString(sh),
 					Integer.toString(mb), Integer.toString(me) };
 		}
 	}
@@ -872,9 +882,9 @@ public class PowerPCDisassembler {
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
 		if(mb == 0 && me == 31) {
-			return new String[] { "rotlw" + dot, "r" + ra, "r" + rs, "r" + rb };
+			return new String[] { "rotlw" + dot, r(ra), r(rs), r(rb) };
 		} else {
-			return new String[] { "rlwnm" + dot, "r" + ra, "r" + rs, "r" + rb, Integer.toString(mb),
+			return new String[] { "rlwnm" + dot, r(ra), r(rs), r(rb), Integer.toString(mb),
 					Integer.toString(me) };
 		}
 	}
@@ -886,7 +896,7 @@ public class PowerPCDisassembler {
 		if(rs == 0 && ra == 0 && ui == 0) {
 			return new String[] { "nop" };
 		} else {
-			return new String[] { "ori", "r" + ra, "r" + rs, Integer.toString(ui) };
+			return new String[] { "ori", r(ra), r(rs), Integer.toString(ui) };
 		}
 	}
 
@@ -894,7 +904,7 @@ public class PowerPCDisassembler {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int ui = insn.UI.get();
-		return new String[] { "oris", "r" + ra, "r" + rs, Integer.toString(ui) };
+		return new String[] { "oris", r(ra), r(rs), Integer.toString(ui) };
 	}
 
 	protected static String[] xori(InstructionFormat insn) {
@@ -904,7 +914,7 @@ public class PowerPCDisassembler {
 		if(rs == 0 && ra == 0 && ui == 0) {
 			return new String[] { "xnop" };
 		} else {
-			return new String[] { "xori", "r" + ra, "r" + rs, Integer.toString(ui) };
+			return new String[] { "xori", r(ra), r(rs), Integer.toString(ui) };
 		}
 	}
 
@@ -912,14 +922,14 @@ public class PowerPCDisassembler {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int ui = insn.UI.get() << 16;
-		return new String[] { "xoris", "r" + ra, "r" + rs, Integer.toString(ui >>> 16) };
+		return new String[] { "xoris", r(ra), r(rs), Integer.toString(ui >>> 16) };
 	}
 
 	protected static String[] andi(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int ui = insn.UI.get();
-		return new String[] { "andi.", "r" + ra, "r" + rs, Integer.toString(ui) };
+		return new String[] { "andi.", r(ra), r(rs), Integer.toString(ui) };
 	}
 
 	protected static String[] andis(InstructionFormat insn) {
@@ -927,7 +937,7 @@ public class PowerPCDisassembler {
 		int ra = insn.RA.get();
 		int ui = insn.UI.get() << 16;
 		String arg = Integer.toString(ui >>> 16);
-		return new String[] { "andis.", "r" + ra, "r" + rs, arg };
+		return new String[] { "andis.", r(ra), r(rs), arg };
 	}
 
 	protected static String[] cmp(InstructionFormat insn) {
@@ -937,22 +947,22 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		if(!l) {
 			if(bf == 0) {
-				return new String[] { "cmpw", "r" + ra, "r" + rb };
+				return new String[] { "cmpw", r(ra), r(rb) };
 			} else {
-				return new String[] { "cmpw", "cr" + Integer.toString(bf), "r" + ra, "r" + rb };
+				return new String[] { "cmpw", "cr" + Integer.toString(bf), r(ra), r(rb) };
 			}
 		} else {
 			if(bf == 0) {
-				return new String[] { "cmpd", "r" + ra, "r" + rb };
+				return new String[] { "cmpd", r(ra), r(rb) };
 			} else {
-				return new String[] { "cmpd", "cr" + Integer.toString(bf), "r" + ra, "r" + rb };
+				return new String[] { "cmpd", "cr" + Integer.toString(bf), r(ra), r(rb) };
 			}
 		}
 	}
 
 	protected static String[] mfcr(InstructionFormat insn) {
 		int rt = insn.RT.get();
-		return new String[] { "mfcr", "r" + rt };
+		return new String[] { "mfcr", r(rt) };
 	}
 
 	protected static String[] lwarx(InstructionFormat insn) {
@@ -961,9 +971,9 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean eh = insn.EH.getBit();
 		if(eh) {
-			return new String[] { "lwarx", "r" + rt, r0(ra), "r" + rb, "1" };
+			return new String[] { "lwarx", r(rt), r0(ra), r(rb), "1" };
 		} else {
-			return new String[] { "lwarx", "r" + rt, r0(ra), "r" + rb };
+			return new String[] { "lwarx", r(rt), r0(ra), r(rb) };
 		}
 	}
 
@@ -971,7 +981,7 @@ public class PowerPCDisassembler {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lwzx", "r" + rt, r0(ra), "r" + rb };
+		return new String[] { "lwzx", r(rt), r0(ra), r(rb) };
 	}
 
 	protected static String[] slw(InstructionFormat insn) {
@@ -980,7 +990,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "slw" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "slw" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] cntlzw(InstructionFormat insn) {
@@ -988,7 +998,7 @@ public class PowerPCDisassembler {
 		int ra = insn.RA.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "cntlzw" + dot, "r" + ra, "r" + rs };
+		return new String[] { "cntlzw" + dot, r(ra), r(rs) };
 	}
 
 	protected static String[] and(InstructionFormat insn) {
@@ -997,7 +1007,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "and" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "and" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] cmpl(InstructionFormat insn) {
@@ -1007,15 +1017,15 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		if(!l) {
 			if(bf == 0) {
-				return new String[] { "cmplw", "r" + ra, "r" + rb };
+				return new String[] { "cmplw", r(ra), r(rb) };
 			} else {
-				return new String[] { "cmplw", "cr" + bf, "r" + ra, "r" + rb };
+				return new String[] { "cmplw", "cr" + bf, r(ra), r(rb) };
 			}
 		} else {
 			if(bf == 0) {
-				return new String[] { "cmpld", "cr" + bf, "r" + ra, "r" + rb };
+				return new String[] { "cmpld", "cr" + bf, r(ra), r(rb) };
 			} else {
-				return new String[] { "cmpld", "r" + ra, "r" + rb };
+				return new String[] { "cmpld", r(ra), r(rb) };
 			}
 		}
 	}
@@ -1023,14 +1033,14 @@ public class PowerPCDisassembler {
 	protected static String[] dcbst(InstructionFormat insn) {
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "dcbst", r0(ra), "r" + rb };
+		return new String[] { "dcbst", r0(ra), r(rb) };
 	}
 
 	protected static String[] lwzux(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lwzux", "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "lwzux", r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] andc(InstructionFormat insn) {
@@ -1039,39 +1049,39 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "andc" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "andc" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] mfmsr(InstructionFormat insn) {
 		int rt = insn.RT.get();
-		return new String[] { "mfmsr", "r" + rt };
+		return new String[] { "mfmsr", r(rt) };
 	}
 
 	protected static String[] dcbf(InstructionFormat insn) {
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "dcbf", r0(ra), "r" + rb };
+		return new String[] { "dcbf", r0(ra), r(rb) };
 	}
 
 	protected static String[] lbzx(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lbzx", "r" + rt, r0(ra), "r" + rb };
+		return new String[] { "lbzx", r(rt), r0(ra), r(rb) };
 	}
 
 	protected static String[] lvx(InstructionFormat insn) {
 		int vrt = insn.VRT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lvx", "v" + vrt, r0(ra), "r" + rb };
+		return new String[] { "lvx", "v" + vrt, r0(ra), r(rb) };
 	}
 
 	protected static String[] lbzux(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lbzux", "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "lbzux", r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] nor(InstructionFormat insn) {
@@ -1080,7 +1090,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "nor" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "nor" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] mtcrf(InstructionFormat insn) {
@@ -1091,65 +1101,65 @@ public class PowerPCDisassembler {
 			return null;
 		} else {
 			if(fxm == 0xFF) {
-				return new String[] { "mtcr", "r" + rs };
+				return new String[] { "mtcr", r(rs) };
 			} else {
-				return new String[] { "mtcrf", Integer.toString(fxm), "r" + rs };
+				return new String[] { "mtcrf", Integer.toString(fxm), r(rs) };
 			}
 		}
 	}
 
 	protected static String[] mtmsr(InstructionFormat insn) {
 		int rs = insn.RS.get();
-		return new String[] { "mtmsr", "r" + rs };
+		return new String[] { "mtmsr", r(rs) };
 	}
 
 	protected static String[] stwcx_(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stwcx.", "r" + rs, r0(ra), "r" + rb };
+		return new String[] { "stwcx.", r(rs), r0(ra), r(rb) };
 	}
 
 	protected static String[] stwx(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stwx", "r" + rs, r0(ra), "r" + rb };
+		return new String[] { "stwx", r(rs), r0(ra), r(rb) };
 	}
 
 	protected static String[] stwux(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stwux", "r" + rs, "r" + ra, "r" + rb };
+		return new String[] { "stwux", r(rs), r(ra), r(rb) };
 	}
 
 	protected static String[] stbx(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stbx", "r" + rs, r0(ra), "r" + rb };
+		return new String[] { "stbx", r(rs), r0(ra), r(rb) };
 	}
 
 	protected static String[] stvx(InstructionFormat insn) {
 		int vrs = insn.VRS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stvx", "v" + vrs, r0(ra), "r" + rb };
+		return new String[] { "stvx", "v" + vrs, r0(ra), r(rb) };
 	}
 
 	protected static String[] dcbtst(InstructionFormat insn) {
 		int th = insn.TH.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "dcbtst", r0(ra), "r" + rb, Integer.toString(th) };
+		return new String[] { "dcbtst", r0(ra), r(rb), Integer.toString(th) };
 	}
 
 	protected static String[] stbux(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stbux", "r" + rs, r0(ra), "r" + rb };
+		return new String[] { "stbux", r(rs), r0(ra), r(rb) };
 	}
 
 	protected static String[] dcbt(InstructionFormat insn) {
@@ -1157,9 +1167,9 @@ public class PowerPCDisassembler {
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
 		if(th == 0) {
-			return new String[] { "dcbt", r0(ra), "r" + rb };
+			return new String[] { "dcbt", r0(ra), r(rb) };
 		} else {
-			return new String[] { "dcbt", r0(ra), "r" + rb, Integer.toString(th) };
+			return new String[] { "dcbt", r0(ra), r(rb), Integer.toString(th) };
 		}
 	}
 
@@ -1167,7 +1177,7 @@ public class PowerPCDisassembler {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lhzx", "r" + rt, r0(ra), "r" + rb };
+		return new String[] { "lhzx", r(rt), r0(ra), r(rb) };
 	}
 
 	protected static String[] eqv(InstructionFormat insn) {
@@ -1176,14 +1186,14 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "eqv" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "eqv" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] lhzux(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lhzux", "r" + rt, r0(ra), "r" + rb };
+		return new String[] { "lhzux", r(rt), r0(ra), r(rb) };
 	}
 
 	protected static String[] xor(InstructionFormat insn) {
@@ -1192,7 +1202,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "xor" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "xor" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] mfspr(InstructionFormat insn) {
@@ -1200,69 +1210,69 @@ public class PowerPCDisassembler {
 		int spr = (insn.spr.get() & 0x1f) << 5 | (insn.spr.get() >> 5) & 0x1f;
 		switch(spr) {
 		case 1:
-			return new String[] { "mfxer", "r" + rt };
+			return new String[] { "mfxer", r(rt) };
 		case 8:
-			return new String[] { "mflr", "r" + rt };
+			return new String[] { "mflr", r(rt) };
 		case 9:
-			return new String[] { "mfctr", "r" + rt };
+			return new String[] { "mfctr", r(rt) };
 		case 18:
-			return new String[] { "mfdsisr", "r" + rt };
+			return new String[] { "mfdsisr", r(rt) };
 		case 19:
-			return new String[] { "mfdar", "r" + rt };
+			return new String[] { "mfdar", r(rt) };
 		case 22:
-			return new String[] { "mfdec", "r" + rt };
+			return new String[] { "mfdec", r(rt) };
 		case 25:
-			return new String[] { "mfsdr1", "r" + rt };
+			return new String[] { "mfsdr1", r(rt) };
 		case 26:
-			return new String[] { "mfsrr0", "r" + rt };
+			return new String[] { "mfsrr0", r(rt) };
 		case 27:
-			return new String[] { "mfsrr1", "r" + rt };
+			return new String[] { "mfsrr1", r(rt) };
 		case 272:
-			return new String[] { "mfsprg", "r" + rt, "0" };
+			return new String[] { "mfsprg", r(rt), "0" };
 		case 273:
-			return new String[] { "mfsprg", "r" + rt, "1" };
+			return new String[] { "mfsprg", r(rt), "1" };
 		case 274:
-			return new String[] { "mfsprg", "r" + rt, "2" };
+			return new String[] { "mfsprg", r(rt), "2" };
 		case 275:
-			return new String[] { "mfsprg", "r" + rt, "3" };
+			return new String[] { "mfsprg", r(rt), "3" };
 		case 282:
-			return new String[] { "mfear", "r" + rt };
+			return new String[] { "mfear", r(rt) };
 		case 287:
-			return new String[] { "mfpvr", "r" + rt };
+			return new String[] { "mfpvr", r(rt) };
 		case 528:
-			return new String[] { "mfibatu", "r" + rt, "0" };
+			return new String[] { "mfibatu", r(rt), "0" };
 		case 529:
-			return new String[] { "mfibatl", "r" + rt, "0" };
+			return new String[] { "mfibatl", r(rt), "0" };
 		case 530:
-			return new String[] { "mfibatu", "r" + rt, "1" };
+			return new String[] { "mfibatu", r(rt), "1" };
 		case 531:
-			return new String[] { "mfibatl", "r" + rt, "1" };
+			return new String[] { "mfibatl", r(rt), "1" };
 		case 532:
-			return new String[] { "mfibatu", "r" + rt, "2" };
+			return new String[] { "mfibatu", r(rt), "2" };
 		case 533:
-			return new String[] { "mfibatl", "r" + rt, "2" };
+			return new String[] { "mfibatl", r(rt), "2" };
 		case 534:
-			return new String[] { "mfibatu", "r" + rt, "3" };
+			return new String[] { "mfibatu", r(rt), "3" };
 		case 535:
-			return new String[] { "mfibatl", "r" + rt, "3" };
+			return new String[] { "mfibatl", r(rt), "3" };
 		case 536:
-			return new String[] { "mfdbatu", "r" + rt, "0" };
+			return new String[] { "mfdbatu", r(rt), "0" };
 		case 537:
-			return new String[] { "mfdbatl", "r" + rt, "0" };
+			return new String[] { "mfdbatl", r(rt), "0" };
 		case 538:
-			return new String[] { "mfdbatu", "r" + rt, "1" };
+			return new String[] { "mfdbatu", r(rt), "1" };
 		case 539:
-			return new String[] { "mfdbatl", "r" + rt, "1" };
+			return new String[] { "mfdbatl", r(rt), "1" };
 		case 540:
-			return new String[] { "mfdbatu", "r" + rt, "2" };
+			return new String[] { "mfdbatu", r(rt), "2" };
 		case 541:
-			return new String[] { "mfdbatl", "r" + rt, "2" };
+			return new String[] { "mfdbatl", r(rt), "2" };
 		case 542:
-			return new String[] { "mfdbatu", "r" + rt, "3" };
+			return new String[] { "mfdbatu", r(rt), "3" };
 		case 543:
-			return new String[] { "mfdbatl", "r" + rt, "3" };
+			return new String[] { "mfdbatl", r(rt), "3" };
 		default:
-			return new String[] { "mfspr", "r" + rt, Spr.toString(spr) };
+			return new String[] { "mfspr", r(rt), Spr.toString(spr) };
 		}
 	}
 
@@ -1270,14 +1280,27 @@ public class PowerPCDisassembler {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lhax", "r" + rt, r0(ra), "r" + rb };
+		return new String[] { "lhax", r(rt), r0(ra), r(rb) };
+	}
+
+	protected static String[] mftb(InstructionFormat insn) {
+		int rt = insn.RT.get();
+		int tbr = (insn.spr.get() & 0x1f) << 5 | (insn.spr.get() >> 5) & 0x1f;
+		switch(tbr) {
+		case 268:
+			return new String[] { "mftb", r(rt) };
+		case 269:
+			return new String[] { "mftbu", r(rt) };
+		default:
+			return new String[] { "mftb", r(rt), Integer.toString(tbr) };
+		}
 	}
 
 	protected static String[] sthx(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "sthx", "r" + rs, r0(ra), "r" + rb };
+		return new String[] { "sthx", r(rs), r0(ra), r(rb) };
 	}
 
 	protected static String[] orc(InstructionFormat insn) {
@@ -1286,7 +1309,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "orc" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "orc" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] or(InstructionFormat insn) {
@@ -1296,9 +1319,9 @@ public class PowerPCDisassembler {
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
 		if(rs == rb) {
-			return new String[] { "mr" + dot, "r" + ra, "r" + rs };
+			return new String[] { "mr" + dot, r(ra), r(rs) };
 		} else {
-			return new String[] { "or" + dot, "r" + ra, "r" + rs, "r" + rb };
+			return new String[] { "or" + dot, r(ra), r(rs), r(rb) };
 		}
 	}
 
@@ -1307,92 +1330,92 @@ public class PowerPCDisassembler {
 		int spr = (insn.spr.get() & 0x1f) << 5 | (insn.spr.get() >> 5) & 0x1f;
 		switch(spr) {
 		case 1:
-			return new String[] { "mtxer", "r" + rs };
+			return new String[] { "mtxer", r(rs) };
 		case 8:
-			return new String[] { "mtlr", "r" + rs };
+			return new String[] { "mtlr", r(rs) };
 		case 9:
-			return new String[] { "mtctr", "r" + rs };
+			return new String[] { "mtctr", r(rs) };
 		case 18:
-			return new String[] { "mtdsisr", "r" + rs };
+			return new String[] { "mtdsisr", r(rs) };
 		case 19:
-			return new String[] { "mtdar", "r" + rs };
+			return new String[] { "mtdar", r(rs) };
 		case 22:
-			return new String[] { "mtdec", "r" + rs };
+			return new String[] { "mtdec", r(rs) };
 		case 25:
-			return new String[] { "mtsdr1", "r" + rs };
+			return new String[] { "mtsdr1", r(rs) };
 		case 26:
-			return new String[] { "mtsrr0", "r" + rs };
+			return new String[] { "mtsrr0", r(rs) };
 		case 27:
-			return new String[] { "mtsrr1", "r" + rs };
+			return new String[] { "mtsrr1", r(rs) };
 		case 272:
-			return new String[] { "mtsprg", "0", "r" + rs };
+			return new String[] { "mtsprg", "0", r(rs) };
 		case 273:
-			return new String[] { "mtsprg", "1", "r" + rs };
+			return new String[] { "mtsprg", "1", r(rs) };
 		case 274:
-			return new String[] { "mtsprg", "2", "r" + rs };
+			return new String[] { "mtsprg", "2", r(rs) };
 		case 275:
-			return new String[] { "mtsprg", "3", "r" + rs };
+			return new String[] { "mtsprg", "3", r(rs) };
 		case 282:
-			return new String[] { "mtear", "r" + rs };
+			return new String[] { "mtear", r(rs) };
 		case 284:
-			return new String[] { "mttbl", "r" + rs };
+			return new String[] { "mttbl", r(rs) };
 		case 285:
-			return new String[] { "mttbu", "r" + rs };
+			return new String[] { "mttbu", r(rs) };
 		case 528:
-			return new String[] { "mtibatu", "0", "r" + rs };
+			return new String[] { "mtibatu", "0", r(rs) };
 		case 529:
-			return new String[] { "mtibatl", "0", "r" + rs };
+			return new String[] { "mtibatl", "0", r(rs) };
 		case 530:
-			return new String[] { "mtibatu", "1", "r" + rs };
+			return new String[] { "mtibatu", "1", r(rs) };
 		case 531:
-			return new String[] { "mtibatl", "1", "r" + rs };
+			return new String[] { "mtibatl", "1", r(rs) };
 		case 532:
-			return new String[] { "mtibatu", "2", "r" + rs };
+			return new String[] { "mtibatu", "2", r(rs) };
 		case 533:
-			return new String[] { "mtibatl", "2", "r" + rs };
+			return new String[] { "mtibatl", "2", r(rs) };
 		case 534:
-			return new String[] { "mtibatu", "3", "r" + rs };
+			return new String[] { "mtibatu", "3", r(rs) };
 		case 535:
-			return new String[] { "mtibatl", "3", "r" + rs };
+			return new String[] { "mtibatl", "3", r(rs) };
 		case 536:
-			return new String[] { "mtdbatu", "0", "r" + rs };
+			return new String[] { "mtdbatu", "0", r(rs) };
 		case 537:
-			return new String[] { "mtdbatl", "0", "r" + rs };
+			return new String[] { "mtdbatl", "0", r(rs) };
 		case 538:
-			return new String[] { "mtdbatu", "1", "r" + rs };
+			return new String[] { "mtdbatu", "1", r(rs) };
 		case 539:
-			return new String[] { "mtdbatl", "1", "r" + rs };
+			return new String[] { "mtdbatl", "1", r(rs) };
 		case 540:
-			return new String[] { "mtdbatu", "2", "r" + rs };
+			return new String[] { "mtdbatu", "2", r(rs) };
 		case 541:
-			return new String[] { "mtdbatl", "2", "r" + rs };
+			return new String[] { "mtdbatl", "2", r(rs) };
 		case 542:
-			return new String[] { "mtdbatu", "3", "r" + rs };
+			return new String[] { "mtdbatu", "3", r(rs) };
 		case 543:
-			return new String[] { "mtdbatl", "3", "r" + rs };
+			return new String[] { "mtdbatl", "3", r(rs) };
 		default:
-			return new String[] { "mtspr", "r" + rs, Spr.toString(spr) };
+			return new String[] { "mtspr", r(rs), Spr.toString(spr) };
 		}
 	}
 
 	protected static String[] dcbi(InstructionFormat insn) {
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "dcbi", r0(ra), "r" + rb };
+		return new String[] { "dcbi", r0(ra), r(rb) };
 	}
 
 	protected static String[] lwbrx(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lwbrx", "r" + rt, r0(ra), "r" + rb };
+		return new String[] { "lwbrx", r(rt), r0(ra), r(rb) };
 	}
 
 	protected static String[] lfsx(InstructionFormat insn) {
 		int frt = insn.FRT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lfsx", "f" + frt, r0(ra), "r" + rb };
+		return new String[] { "lfsx", "f" + frt, r0(ra), r(rb) };
 	}
 
 	protected static String[] srw(InstructionFormat insn) {
@@ -1401,14 +1424,14 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "srw" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "srw" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] lswi(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int nb = insn.NB.get();
-		return new String[] { "lswi", "r" + rt, "r" + ra, Integer.toString(nb) };
+		return new String[] { "lswi", r(rt), r(ra), Integer.toString(nb) };
 	}
 
 	protected static String[] sync(InstructionFormat insn) {
@@ -1421,49 +1444,49 @@ public class PowerPCDisassembler {
 		int frt = insn.FRT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lfdx", "f" + frt, r0(ra), "r" + rb };
+		return new String[] { "lfdx", "f" + frt, r0(ra), r(rb) };
 	}
 
 	protected static String[] stwbrx(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stwbrx", "r" + rs, r0(ra), "r" + rb };
+		return new String[] { "stwbrx", r(rs), r0(ra), r(rb) };
 	}
 
 	protected static String[] stfsx(InstructionFormat insn) {
 		int frs = insn.FRS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stfsx", "f" + frs, r0(ra), "r" + rb };
+		return new String[] { "stfsx", "f" + frs, r0(ra), r(rb) };
 	}
 
 	protected static String[] stfsux(InstructionFormat insn) {
 		int frs = insn.FRS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stfsux", "f" + frs, "r" + ra, "r" + rb };
+		return new String[] { "stfsux", "f" + frs, r(ra), r(rb) };
 	}
 
 	protected static String[] stswi(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int nb = insn.NB.get();
-		return new String[] { "stswi", "r" + rs, "r" + ra, Integer.toString(nb) };
+		return new String[] { "stswi", r(rs), r(ra), Integer.toString(nb) };
 	}
 
 	protected static String[] stfdx(InstructionFormat insn) {
 		int frs = insn.FRS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "stfdx", "f" + frs, r0(ra), "r" + rb };
+		return new String[] { "stfdx", "f" + frs, r0(ra), r(rb) };
 	}
 
 	protected static String[] lhbrx(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lhbrx", "r" + rt, r0(ra), "r" + rb };
+		return new String[] { "lhbrx", r(rt), r0(ra), r(rb) };
 	}
 
 	protected static String[] sraw(InstructionFormat insn) {
@@ -1472,7 +1495,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "sraw" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "sraw" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] srawi(InstructionFormat insn) {
@@ -1481,21 +1504,21 @@ public class PowerPCDisassembler {
 		int sh = insn.SH.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "srawi" + dot, "r" + ra, "r" + rs, Integer.toString(sh) };
+		return new String[] { "srawi" + dot, r(ra), r(rs), Integer.toString(sh) };
 	}
 
 	protected static String[] lfiwax(InstructionFormat insn) {
 		int frt = insn.FRT.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "lfiwax", "f" + frt, r0(ra), "r" + rb };
+		return new String[] { "lfiwax", "f" + frt, r0(ra), r(rb) };
 	}
 
 	protected static String[] sthbrx(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "sthbrx", "r" + rs, r0(ra), "r" + rb };
+		return new String[] { "sthbrx", r(rs), r0(ra), r(rb) };
 	}
 
 	protected static String[] extsh(InstructionFormat insn) {
@@ -1503,7 +1526,7 @@ public class PowerPCDisassembler {
 		int ra = insn.RA.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "extsh" + dot, "r" + ra, "r" + rs };
+		return new String[] { "extsh" + dot, r(ra), r(rs) };
 	}
 
 	protected static String[] extsb(InstructionFormat insn) {
@@ -1511,19 +1534,19 @@ public class PowerPCDisassembler {
 		int ra = insn.RA.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "extsb" + dot, "r" + ra, "r" + rs };
+		return new String[] { "extsb" + dot, r(ra), r(rs) };
 	}
 
 	protected static String[] icbi(InstructionFormat insn) {
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "icbi", r0(ra), "r" + rb };
+		return new String[] { "icbi", r0(ra), r(rb) };
 	}
 
 	protected static String[] dcbz(InstructionFormat insn) {
 		int ra = insn.RA.get();
 		int rb = insn.RB.get();
-		return new String[] { "dcbz", r0(ra), "r" + rb };
+		return new String[] { "dcbz", r0(ra), r(rb) };
 	}
 
 	protected static String[] subfc(InstructionFormat insn) {
@@ -1539,7 +1562,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "subfc" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "subfc" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] addc(InstructionFormat insn) {
@@ -1555,7 +1578,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "addc" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "addc" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] mulhwu(InstructionFormat insn) {
@@ -1564,7 +1587,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "mulhwu" + dot, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "mulhwu" + dot, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] subf(InstructionFormat insn) {
@@ -1580,7 +1603,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "subf" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "subf" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] mulhw(InstructionFormat insn) {
@@ -1589,7 +1612,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "mulhw" + dot, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "mulhw" + dot, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] neg(InstructionFormat insn) {
@@ -1604,7 +1627,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "neg" + add, "r" + rt, "r" + ra };
+		return new String[] { "neg" + add, r(rt), r(ra) };
 	}
 
 	protected static String[] subfe(InstructionFormat insn) {
@@ -1620,7 +1643,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "subfe" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "subfe" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] adde(InstructionFormat insn) {
@@ -1636,7 +1659,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "adde" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "adde" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] subfze(InstructionFormat insn) {
@@ -1651,7 +1674,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "subfze" + add, "r" + rt, "r" + ra };
+		return new String[] { "subfze" + add, r(rt), r(ra) };
 	}
 
 	protected static String[] addze(InstructionFormat insn) {
@@ -1666,7 +1689,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "addze" + add, "r" + rt, "r" + ra };
+		return new String[] { "addze" + add, r(rt), r(ra) };
 	}
 
 	protected static String[] addme(InstructionFormat insn) {
@@ -1681,7 +1704,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "addme" + add, "r" + rt, "r" + ra };
+		return new String[] { "addme" + add, r(rt), r(ra) };
 	}
 
 	protected static String[] mullw(InstructionFormat insn) {
@@ -1697,7 +1720,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "mullw" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "mullw" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] add(InstructionFormat insn) {
@@ -1713,7 +1736,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "add" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "add" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] divwu(InstructionFormat insn) {
@@ -1729,7 +1752,7 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "divwu" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "divwu" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] nand(InstructionFormat insn) {
@@ -1738,7 +1761,7 @@ public class PowerPCDisassembler {
 		int rb = insn.RB.get();
 		boolean rc = insn.Rc.getBit();
 		String dot = rc ? "." : "";
-		return new String[] { "nand" + dot, "r" + ra, "r" + rs, "r" + rb };
+		return new String[] { "nand" + dot, r(ra), r(rs), r(rb) };
 	}
 
 	protected static String[] divw(InstructionFormat insn) {
@@ -1754,119 +1777,119 @@ public class PowerPCDisassembler {
 		if(rc) {
 			add.append('.');
 		}
-		return new String[] { "div" + add, "r" + rt, "r" + ra, "r" + rb };
+		return new String[] { "div" + add, r(rt), r(ra), r(rb) };
 	}
 
 	protected static String[] lwz(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lwz", "r" + rt, d + "(" + r0(ra) + ")" };
+		return new String[] { "lwz", r(rt), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] lwzu(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lwzu", "r" + rt, d + "(r" + ra + ")" };
+		return new String[] { "lwzu", r(rt), d + "(r" + ra + ")" };
 	}
 
 	protected static String[] lbz(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lbz", "r" + rt, d + "(" + r0(ra) + ")" };
+		return new String[] { "lbz", r(rt), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] lbzu(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lbzu", "r" + rt, d + "(r" + ra + ")" };
+		return new String[] { "lbzu", r(rt), d + "(r" + ra + ")" };
 	}
 
 	protected static String[] stw(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "stw", "r" + rs, d + "(" + r0(ra) + ")" };
+		return new String[] { "stw", r(rs), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] stwu(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "stwu", "r" + rs, d + "(r" + ra + ")" };
+		return new String[] { "stwu", r(rs), d + "(r" + ra + ")" };
 	}
 
 	protected static String[] stb(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "stb", "r" + rs, d + "(" + r0(ra) + ")" };
+		return new String[] { "stb", r(rs), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] stbu(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "stbu", "r" + rs, d + "(r" + ra + ")" };
+		return new String[] { "stbu", r(rs), d + "(r" + ra + ")" };
 	}
 
 	protected static String[] lhz(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lhz", "r" + rt, d + "(" + r0(ra) + ")" };
+		return new String[] { "lhz", r(rt), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] lhzu(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lhzu", "r" + rt, d + "(r" + ra + ")" };
+		return new String[] { "lhzu", r(rt), d + "(r" + ra + ")" };
 	}
 
 	protected static String[] lha(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lha", "r" + rt, d + "(" + r0(ra) + ")" };
+		return new String[] { "lha", r(rt), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] lhau(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lhau", "r" + rt, d + "(r" + ra + ")" };
+		return new String[] { "lhau", r(rt), d + "(r" + ra + ")" };
 	}
 
 	protected static String[] sth(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "sth", "r" + rs, d + "(" + r0(ra) + ")" };
+		return new String[] { "sth", r(rs), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] sthu(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "sthu", "r" + rs, d + "(" + r0(ra) + ")" };
+		return new String[] { "sthu", r(rs), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] lmw(InstructionFormat insn) {
 		int rt = insn.RT.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "lmw", "r" + rt, d + "(" + r0(ra) + ")" };
+		return new String[] { "lmw", r(rt), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] stmw(InstructionFormat insn) {
 		int rs = insn.RS.get();
 		int ra = insn.RA.get();
 		int d = insn.D.get();
-		return new String[] { "stmw", "r" + rs, d + "(" + r0(ra) + ")" };
+		return new String[] { "stmw", r(rs), d + "(" + r0(ra) + ")" };
 	}
 
 	protected static String[] lfs(InstructionFormat insn) {

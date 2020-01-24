@@ -129,6 +129,7 @@ public class Opcode {
 	public static final int XO_XOR = 316;
 	public static final int XO_MFSPR = 339;
 	public static final int XO_LHAX = 343;
+	public static final int XO_MFTB = 371;
 	public static final int XO_STHX = 407;
 	public static final int XO_ORC = 412;
 	public static final int XO_CRORC = 417;
