@@ -3,7 +3,6 @@ package org.graalvm.vm.trcview.arch.ppc.io;
 import java.io.IOException;
 
 import org.graalvm.vm.util.io.WordInputStream;
-import org.graalvm.vm.util.io.WordOutputStream;
 
 public class PowerPCFullCpuState extends PowerPCCpuState {
 	private final int insn;
@@ -110,10 +109,5 @@ public class PowerPCFullCpuState extends PowerPCCpuState {
 	@Override
 	public int getSRR1() {
 		return srr1;
-	}
-
-	@Override
-	protected void writeRecord(WordOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
 	}
 }

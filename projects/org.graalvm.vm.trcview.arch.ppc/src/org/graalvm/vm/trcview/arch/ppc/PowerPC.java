@@ -71,4 +71,9 @@ public class PowerPC extends Architecture {
 	public boolean isSystemLevel() {
 		return true;
 	}
+
+	@Override
+	public boolean isStackedTraps() {
+		return false;
+	}
 }

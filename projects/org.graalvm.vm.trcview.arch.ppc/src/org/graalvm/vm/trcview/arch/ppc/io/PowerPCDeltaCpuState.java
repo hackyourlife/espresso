@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.graalvm.vm.util.io.Endianess;
 import org.graalvm.vm.util.io.WordInputStream;
-import org.graalvm.vm.util.io.WordOutputStream;
 
 public class PowerPCDeltaCpuState extends PowerPCCpuState {
 	private final int MASK_LR = bit(0);
@@ -174,10 +173,5 @@ public class PowerPCDeltaCpuState extends PowerPCCpuState {
 	@Override
 	public long getPC() {
 		return Integer.toUnsignedLong(pc);
-	}
-
-	@Override
-	protected void writeRecord(WordOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
 	}
 }
