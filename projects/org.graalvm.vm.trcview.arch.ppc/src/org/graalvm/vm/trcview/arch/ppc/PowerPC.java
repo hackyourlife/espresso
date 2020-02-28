@@ -76,4 +76,9 @@ public class PowerPC extends Architecture {
 	public boolean isStackedTraps() {
 		return false;
 	}
+
+	@Override
+	public boolean isTaggedState() {
+		return true;
+	}
 }
