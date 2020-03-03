@@ -40,6 +40,7 @@ public class PowerPCCallDecoder extends CallDecoder {
 			if(i > 0) {
 				buf.append(", ");
 			}
+			val = val & 0xFFFFFFFFL; // truncate to 32bit
 			buf.append(str(type, val, state, trc));
 		}
 		buf.append(')');
@@ -55,6 +56,7 @@ public class PowerPCCallDecoder extends CallDecoder {
 			} else {
 				retval = nextState.getGPR(3);
 			}
+			retval = retval & 0xFFFFFFFFL; // truncate to 32bit
 			String s = str(prototype.returnType, retval, nextState, trc);
 			if(s.length() > 0) {
 				buf.append(" = ");
