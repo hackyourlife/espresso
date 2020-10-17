@@ -9,7 +9,7 @@ suite = {
     "suites" : [
       {
         "name" : "vmx86",
-        "version" : "38886f838b91fffdf7884d98c5df7332b00c54d7",
+        "version" : "5d8a4815ca98b85deba21cb370ccbe672bd54692",
         "urls" : [
           {"url" : "https://github.com/pekd/vmx86", "kind" : "git"},
         ]

@@ -1,9 +1,5 @@
 package org.graalvm.vm.trcview.arch.ppc.io;
 
-import java.io.IOException;
-
-import org.graalvm.vm.util.io.WordOutputStream;
-
 public class PowerPCZeroCpuState extends PowerPCCpuState {
 	public PowerPCZeroCpuState(int tid) {
 		super(tid);
@@ -62,10 +58,5 @@ public class PowerPCZeroCpuState extends PowerPCCpuState {
 	@Override
 	public long getPC() {
 		return 0;
-	}
-
-	@Override
-	protected void writeRecord(WordOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
 	}
 }

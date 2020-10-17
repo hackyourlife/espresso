@@ -5,11 +5,9 @@ import java.io.InputStream;
 import org.graalvm.vm.posix.elf.Elf;
 import org.graalvm.vm.trcview.arch.Architecture;
 import org.graalvm.vm.trcview.arch.io.ArchTraceReader;
-import org.graalvm.vm.trcview.arch.io.EventParser;
 import org.graalvm.vm.trcview.arch.io.StepFormat;
 import org.graalvm.vm.trcview.arch.ppc.decode.PowerPCCallDecoder;
 import org.graalvm.vm.trcview.arch.ppc.decode.PowerPCSyscallDecoder;
-import org.graalvm.vm.trcview.arch.ppc.io.PowerPCEventParser;
 import org.graalvm.vm.trcview.arch.ppc.io.PowerPCTraceReader;
 import org.graalvm.vm.trcview.decode.CallDecoder;
 import org.graalvm.vm.trcview.decode.SyscallDecoder;
@@ -20,7 +18,6 @@ public class PowerPC extends Architecture {
 
 	private static final SyscallDecoder syscallDecoder = new PowerPCSyscallDecoder();
 	private static final CallDecoder callDecoder = new PowerPCCallDecoder();
-	private static final EventParser eventParser = new PowerPCEventParser();
 
 	@Override
 	public short getId() {
@@ -40,11 +37,6 @@ public class PowerPC extends Architecture {
 	@Override
 	public ArchTraceReader getTraceReader(InputStream in) {
 		return new PowerPCTraceReader(in);
-	}
-
-	@Override
-	public EventParser getEventParser() {
-		return eventParser;
 	}
 
 	@Override

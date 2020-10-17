@@ -8,10 +8,8 @@ import java.util.Map;
 
 import org.graalvm.vm.trcview.arch.io.InterruptEvent;
 import org.graalvm.vm.trcview.arch.io.StepEvent;
-import org.graalvm.vm.trcview.arch.ppc.PowerPC;
 import org.graalvm.vm.util.BitTest;
 import org.graalvm.vm.util.io.WordInputStream;
-import org.graalvm.vm.util.io.WordOutputStream;
 
 public class PowerPCExceptionEvent extends InterruptEvent {
 	public static final int EXCEPTION_DECREMENTER = 0x00000001;
@@ -44,7 +42,7 @@ public class PowerPCExceptionEvent extends InterruptEvent {
 	}
 
 	protected PowerPCExceptionEvent(WordInputStream in, int tid, PowerPCStepEvent step) throws IOException {
-		super(PowerPC.ID, tid);
+		super(tid);
 		this.step = step;
 		type = in.read32bit();
 		srr0 = in.read32bit();
@@ -62,12 +60,6 @@ public class PowerPCExceptionEvent extends InterruptEvent {
 	@Override
 	public StepEvent getStep() {
 		return step;
-	}
-
-	@Override
-	protected void writeRecord(WordOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public static String getExceptionString(int type) {

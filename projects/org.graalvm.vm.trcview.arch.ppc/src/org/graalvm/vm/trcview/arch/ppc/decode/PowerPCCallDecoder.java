@@ -6,6 +6,7 @@ import org.graalvm.vm.trcview.analysis.type.Type;
 import org.graalvm.vm.trcview.arch.io.CpuState;
 import org.graalvm.vm.trcview.arch.ppc.io.PowerPCCpuState;
 import org.graalvm.vm.trcview.decode.CallDecoder;
+import org.graalvm.vm.trcview.decode.DecoderUtils;
 import org.graalvm.vm.trcview.expression.EvaluationException;
 import org.graalvm.vm.trcview.expression.ExpressionContext;
 import org.graalvm.vm.trcview.net.TraceAnalyzer;
@@ -41,7 +42,7 @@ public class PowerPCCallDecoder extends CallDecoder {
 				buf.append(", ");
 			}
 			val = val & 0xFFFFFFFFL; // truncate to 32bit
-			buf.append(str(type, val, state, trc));
+			buf.append(DecoderUtils.str(type, val, state, trc));
 		}
 		buf.append(')');
 		if(nextState != null) {
@@ -57,7 +58,7 @@ public class PowerPCCallDecoder extends CallDecoder {
 				retval = nextState.getGPR(3);
 			}
 			retval = retval & 0xFFFFFFFFL; // truncate to 32bit
-			String s = str(prototype.returnType, retval, nextState, trc);
+			String s = DecoderUtils.str(prototype.returnType, retval, nextState, trc);
 			if(s.length() > 0) {
 				buf.append(" = ");
 				buf.append(s);

@@ -1,16 +1,12 @@
 package org.graalvm.vm.trcview.arch.ppc.io;
 
-import java.io.IOException;
-
 import org.graalvm.vm.trcview.arch.io.CpuState;
-import org.graalvm.vm.trcview.arch.ppc.PowerPC;
 import org.graalvm.vm.trcview.arch.ppc.disasm.Cr;
 import org.graalvm.vm.util.HexFormatter;
-import org.graalvm.vm.util.io.WordOutputStream;
 
-public abstract class PowerPCCpuState extends CpuState {
+public abstract class PowerPCCpuState extends PowerPCStepEvent implements CpuState {
 	protected PowerPCCpuState(int tid) {
-		super(PowerPC.ID, tid);
+		super(tid);
 	}
 
 	public abstract int getInstruction();
@@ -242,19 +238,7 @@ public abstract class PowerPCCpuState extends CpuState {
 	}
 
 	@Override
-	protected void writeRecord(WordOutputStream out) throws IOException {
-		for(int i = 0; i < 32; i++) {
-			out.write32bit(getGPR(i));
-		}
-		for(int i = 0; i < 32; i++) {
-			out.write64bit(0); // getFPR(i)
-		}
-		out.write32bit(getLR());
-		out.write32bit(getCTR());
-		out.write32bit(getCR());
-		out.write32bit(getXER());
-		out.write32bit(getFPSCR());
-		out.write32bit(getSRR0());
-		out.write32bit(getSRR1());
+	public PowerPCCpuState getState() {
+		return this;
 	}
 }

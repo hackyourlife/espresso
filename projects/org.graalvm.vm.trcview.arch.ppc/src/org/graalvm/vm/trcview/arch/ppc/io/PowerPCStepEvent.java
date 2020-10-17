@@ -1,6 +1,5 @@
 package org.graalvm.vm.trcview.arch.ppc.io;
 
-import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -10,34 +9,18 @@ import org.graalvm.vm.trcview.arch.io.StepFormat;
 import org.graalvm.vm.trcview.arch.ppc.PowerPC;
 import org.graalvm.vm.trcview.arch.ppc.disasm.PowerPCDisassembler;
 import org.graalvm.vm.util.io.Endianess;
-import org.graalvm.vm.util.io.WordInputStream;
-import org.graalvm.vm.util.io.WordOutputStream;
 
-public class PowerPCStepEvent extends StepEvent {
-	private final PowerPCCpuState state;
+public abstract class PowerPCStepEvent extends StepEvent {
 	InstructionType type = null;
 
-	protected PowerPCStepEvent(WordInputStream in, int tid) throws IOException {
-		super(PowerPC.ID, tid);
-		state = new PowerPCFullCpuState(in, tid);
-	}
-
-	protected PowerPCStepEvent(WordInputStream in, int tid, PowerPCStepEvent last, boolean fullstate)
-			throws IOException {
-		super(PowerPC.ID, tid);
-		PowerPCCpuState lastState = last == null ? new PowerPCZeroCpuState(tid) : last.getState();
-		PowerPCCpuState cpu = new PowerPCDeltaCpuState(in, tid, lastState);
-		if(fullstate) {
-			state = new PowerPCFullCpuState(cpu);
-		} else {
-			state = cpu;
-		}
+	protected PowerPCStepEvent(int tid) {
+		super(tid);
 	}
 
 	@Override
 	public byte[] getMachinecode() {
 		byte[] opcd = new byte[4];
-		Endianess.set32bitBE(opcd, state.getInstruction());
+		Endianess.set32bitBE(opcd, getState().getInstruction());
 		return opcd;
 	}
 
@@ -53,7 +36,7 @@ public class PowerPCStepEvent extends StepEvent {
 
 	@Override
 	public String[] getDisassemblyComponents() {
-		return PowerPCDisassembler.disassemble((int) state.getPC(), state.getInstruction());
+		return PowerPCDisassembler.disassemble((int) getState().getPC(), getState().getInstruction());
 	}
 
 	@Override
@@ -62,36 +45,19 @@ public class PowerPCStepEvent extends StepEvent {
 	}
 
 	@Override
-	public long getPC() {
-		return state.getPC();
-	}
-
-	@Override
 	public InstructionType getType() {
 		if(type != null) {
 			return type;
 		} else {
-			return PowerPCDisassembler.getType(state, state.getInstruction());
+			return PowerPCDisassembler.getType(getState(), getState().getInstruction());
 		}
 	}
 
 	@Override
-	public long getStep() {
-		return state.getStep();
-	}
-
-	@Override
-	public PowerPCCpuState getState() {
-		return state;
-	}
+	public abstract PowerPCCpuState getState();
 
 	@Override
 	public StepFormat getFormat() {
 		return PowerPC.FORMAT;
-	}
-
-	@Override
-	protected void writeRecord(WordOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
 	}
 }

@@ -9,9 +9,9 @@ import java.util.Deque;
 import org.graalvm.vm.posix.api.mem.Mman;
 import org.graalvm.vm.trcview.arch.io.ArchTraceReader;
 import org.graalvm.vm.trcview.arch.io.Event;
+import org.graalvm.vm.trcview.arch.io.GenericMemoryEvent;
 import org.graalvm.vm.trcview.arch.io.InstructionType;
 import org.graalvm.vm.trcview.arch.io.MemoryDumpEvent;
-import org.graalvm.vm.trcview.arch.io.MemoryEvent;
 import org.graalvm.vm.trcview.arch.io.MmapEvent;
 import org.graalvm.vm.trcview.arch.ppc.disasm.InstructionFormat;
 import org.graalvm.vm.trcview.arch.ppc.disasm.Opcode;
@@ -105,7 +105,13 @@ public class PowerPCTraceReader extends ArchTraceReader {
 		}
 		switch(magic) {
 		case MAGIC_STEP:
-			lastStep = new PowerPCStepEvent(in, 0, lastStep, (fullstate % 500) == 0);
+			PowerPCCpuState lastState = lastStep == null ? new PowerPCZeroCpuState(0) : lastStep.getState();
+			PowerPCCpuState cpu = new PowerPCDeltaCpuState(in, 0, lastState);
+			if((fullstate % 500) == 0) {
+				lastStep = new PowerPCFullCpuState(cpu);
+			} else {
+				lastStep = cpu;
+			}
 			fullstate++;
 			fullstate %= 500;
 			checkTrap(lastStep);
@@ -118,13 +124,13 @@ public class PowerPCTraceReader extends ArchTraceReader {
 			long address = Integer.toUnsignedLong(in.read32bit());
 			long value = Integer.toUnsignedLong(in.read32bit());
 			byte size = (byte) in.read8bit();
-			return new MemoryEvent(true, 0, address, size, false, value);
+			return new GenericMemoryEvent(true, 0, address, size, false, value);
 		}
 		case MAGIC_MEMW: {
 			long address = Integer.toUnsignedLong(in.read32bit());
 			long value = Integer.toUnsignedLong(in.read32bit());
 			byte size = (byte) in.read8bit();
-			return new MemoryEvent(true, 0, address, size, true, value);
+			return new GenericMemoryEvent(true, 0, address, size, true, value);
 		}
 		case MAGIC_DUMP: {
 			long address = Integer.toUnsignedLong(in.read32bit());

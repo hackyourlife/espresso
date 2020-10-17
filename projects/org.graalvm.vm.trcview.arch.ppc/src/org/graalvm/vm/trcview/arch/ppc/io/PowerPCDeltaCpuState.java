@@ -42,10 +42,10 @@ public class PowerPCDeltaCpuState extends PowerPCCpuState {
 		in.read(data);
 	}
 
-	private int getOffset(int bit, int type) {
+	private int getOffset(int bit, int regType) {
 		int offset = 0;
 		int mask;
-		switch(type) {
+		switch(regType) {
 		case 0:
 			mask = regmask;
 			break;
@@ -58,7 +58,7 @@ public class PowerPCDeltaCpuState extends PowerPCCpuState {
 			offset = (Integer.bitCount(regmask) + Integer.bitCount(gprmask)) * 4;
 			break;
 		default:
-			throw new IllegalArgumentException("invalid type: " + type);
+			throw new IllegalArgumentException("invalid type: " + regType);
 		}
 
 		if((mask & bit) != 0) {
